@@ -7,6 +7,10 @@ pub mod mem;
 pub mod fs;
 pub mod dev;
 
+pub mod built_info {
+   include!(concat!(env!("OUT_DIR"), "/built.rs"));
+}
+
 // Temoporary printk functions
 extern "C" {
     fn clear_console();
@@ -22,12 +26,21 @@ fn printk(s: &str){
 }
 
 pub fn log_action(s: &str){
-    
+
 }
 
 #[no_mangle]
 pub extern fn rust_start(){
-    printk("TiOS (kernel 0.1.0)\n");
+    unsafe{clear_console();}
+    printk("TiOS (kernel ");
+    printk(built_info::PKG_VERSION);
+    printk(")  ");
+    printk(built_info::TARGET);
+    printk("  ");
+    printk(built_info::RUSTC_VERSION);
+    printk("  ");
+    printk(built_info::BUILT_TIME_UTC);
+    printk("\n");
     panic!()
     
 }

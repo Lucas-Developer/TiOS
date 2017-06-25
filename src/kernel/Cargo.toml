@@ -2,9 +2,13 @@
 name = "kernel"
 version = "0.1.0"
 authors = ["Andrew Jianzhong Liu <liujzh@shanghaitech.edu.cn>"]
+build = "build.rs"
 
 [lib]
 crate-type = ["staticlib"]
+
+[build-dependencies]
+built = "0.1"
 
 [dependencies]
 rlibc = "*"
