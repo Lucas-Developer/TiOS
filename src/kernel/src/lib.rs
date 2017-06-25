@@ -54,7 +54,7 @@ pub extern fn rust_start(){
     log("Initializing traps...");
     trap::init_trap();
 
-    loop{}
+    unsafe{asm!("hlt")};
 }
 
 #[lang = "eh_personality"] extern fn eh_personality() {}

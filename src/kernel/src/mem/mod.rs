@@ -3,6 +3,9 @@
  *  All rights reserved
  */
 
+pub mod frame;
+pub mod page;
+
 pub fn init_mem(){
     
 }
