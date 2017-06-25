@@ -8,7 +8,7 @@ ASMOBJ=$(patsubst %.asm, %.o, $(ASMSOURCE))
 .PHONY: all clean boot
 
 all: $(ASMOBJ)
-	$(LD) -n -o boot.o -T arch.ld $(ASMOBJ)
+	$(LD) -n -o boot.o -T arch.ld -r $(ASMOBJ)
 
 %.o: %.asm
 	${AS} ${ASFLAGS} $< -o $@

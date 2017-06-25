@@ -7,6 +7,7 @@ authors = ["Andrew Jianzhong Liu <liujzh@shanghaitech.edu.cn>"]
 crate-type = ["staticlib"]
 
 [dependencies]
+rlibc = "*"
 
 [profile.release]
 panic = "abort"
