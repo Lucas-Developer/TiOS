@@ -14,23 +14,59 @@ start:
     call check_cpuid
     call check_long_mode
 
+    call set_page_tables
+    call enable_paging
+    lgdt [gdt64.pointer]
     mov dword [0xb8000], 0x2f4b2f4f
 
 
-    jmp $
+    jmp gdt64.code:long_start
+
+; Utility functions for activating provisional paging
+
+enable_paging:
+    ; Set p4 table address in cr3
+    mov eax, p4_table
+    mov cr3, eax
+
+    ; Set PAE
+    mov eax, cr4
+    or eax, 1 << 5
+    mov cr4, eax
+
+    ; Set long mode
+    mov ecx, 0xC0000080
+    rdmsr
+    or eax, 1 << 8
+    wrmsr
+
+    ; Set paging on
+    mov eax, cr0
+    or eax, 1 << 31
+    mov cr0, eax
+
+    ret
 
 
+set_page_tables:
+    mov eax, p3_table
+    or eax, 0b11 ; present + writable
+    mov [p4_table], eax
 
+    mov eax, p2_table
+    or eax, 0b11 ; present + writable
+    mov [p3_table], eax
 
-
-
-
-
-
-
-
-
-
+    mov ecx, 0 ; Counter variable
+.map_p2_table:
+    mov eax, 0x200000 ; 2MiB Page
+    mul ecx
+    or eax, 0b10000011 ; huge + writable + present
+    mov [p2_table + ecx * 8], eax
+    inc ecx
+    cmp ecx, 512
+    jne .map_p2_table
+    ret
 
 
 
@@ -104,3 +140,12 @@ p2_table:
 stack_bottom:
     resb 64
 stack_top:
+
+    section .rodata
+gdt64:
+    dq 0 ; zero entry
+.code: equ $ - gdt64 ; new
+    dq (1<<43) | (1<<44) | (1<<47) | (1<<53) ; code segment
+.pointer:
+    dw $ - gdt64 - 1
+    dq gdt64
