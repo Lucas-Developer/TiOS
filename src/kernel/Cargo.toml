@@ -13,6 +13,7 @@ built = "0.1"
 [dependencies]
 rlibc = "*"
 volatile = "*"
+spin = "*"
 
 [profile.release]
 panic = "abort"

@@ -4,5 +4,6 @@
  */
 
 pub mod keyboard;
+#[macro_use]
 pub mod console;
 

@@ -3,6 +3,8 @@
  *  All rights reserved
  */
 
+use spin::Mutex;
+
 #[allow(dead_code)]
 #[repr(u8)]
 #[derive(Debug, Clone, Copy)]
@@ -97,12 +99,6 @@ impl Console{
         }
      }
 
-     pub fn write_str(&mut self, s: &str) {
-         for c in s.chars() {
-            self.write_byte(c as u8);
-         }
-     }
-
      fn print_line_feed(&mut self){
         self.scroll_one_line();
      }
@@ -128,5 +124,42 @@ impl Console{
      fn get_buffer(&mut self) -> &mut ConsoleBuffer {
          unsafe{self.buffer.as_mut()}
      }
+}
 
+pub use core::fmt;
+
+impl fmt::Write for Console {
+    fn write_str(&mut self, s: &str) -> fmt::Result {
+        for c in s.bytes() {
+            self.write_byte(c);
+        }
+        Ok(())
+    }
+}
+
+
+pub static CONSOLE: Mutex<Console> = Mutex::new(
+    Console{
+        column_position: 0,
+        color_code: ColorCode(
+            (ConsoleColor::Black as u8) << 4 | (ConsoleColor::LightGray as u8)
+        ),
+        buffer: unsafe{ Unique::new(0xb8000 as *mut _) },
+    }
+);
+
+pub fn print(args: fmt::Arguments) {
+    use core::fmt::Write;
+    CONSOLE.lock().write_fmt(args).unwrap();
+}
+
+macro_rules! print {
+    ($($arg:tt)*) => ({
+        $crate::dev::console::print(format_args!($($arg)*));
+    });
+}
+
+macro_rules! println {
+    ($fmt:expr) => (print!(concat!($fmt, "\n")));
+    ($fmt:expr, $($arg:tt)*) => (print!(concat!($fmt, "\n"), $($arg)*));
 }
