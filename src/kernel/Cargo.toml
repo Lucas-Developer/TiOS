@@ -12,6 +12,7 @@ built = "0.1"
 
 [dependencies]
 rlibc = "*"
+volatile = "*"
 
 [profile.release]
 panic = "abort"

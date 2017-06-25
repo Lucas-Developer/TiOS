@@ -2,4 +2,7 @@
 */**/*.o
 */**/*.iso
 */**/*.tmp
+*/**/*.bin
 src/kernel/target
+os.iso
+bin
