@@ -5,6 +5,7 @@ extern crate rlibc;
 
 pub mod mem;
 pub mod fs;
+pub mod dev;
 
 // Temoporary printk functions
 extern "C" {
