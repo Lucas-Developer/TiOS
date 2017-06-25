@@ -21,6 +21,10 @@ fn printk(s: &str){
     }
 }
 
+pub fn log_action(s: &str){
+    
+}
+
 #[no_mangle]
 pub extern fn rust_start(){
     printk("TiOS (kernel 0.1.0)\n");
