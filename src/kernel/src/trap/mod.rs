@@ -4,6 +4,7 @@
  */
 
 pub mod idt;
+#[macro_use]
 pub mod isr;
 use x86_64;
 

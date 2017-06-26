@@ -99,9 +99,12 @@ extern "C" fn breakpoint_handler(stack_frame : &ExceptionStackFrame) {
     println!("\nPROCESSOR EXCEPTION: BREAKPOINT at {:#x}\n{:#?}",
         stack_frame.instruction_pointer, stack_frame
     );
-    
 }
 
 pub fn init_isr(){
     unsafe{set_isr_gate(3,handler!(breakpoint_handler))};
+}
+
+pub fn set_isr(gate: usize, handler_addr:usize){
+    unsafe{set_isr_gate(gate,handler_addr)};
 }
