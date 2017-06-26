@@ -1,10 +1,13 @@
-#![feature(lang_items, asm, unique, const_fn, naked_functions)]
+#![feature(lang_items, asm, unique, const_fn, naked_functions, core_intrinsics)]
 #![no_std]
 
 extern crate rlibc;
 extern crate volatile;
 extern crate spin;
 extern crate multiboot2;
+#[macro_use]
+extern crate lazy_static;
+extern crate x86_64;
 
 pub mod mem;
 pub mod fs;

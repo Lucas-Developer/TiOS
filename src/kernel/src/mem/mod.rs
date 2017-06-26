@@ -5,7 +5,6 @@
 
 pub mod frame;
 pub mod page;
-pub mod temp;
 
 pub fn init_mem(){
     

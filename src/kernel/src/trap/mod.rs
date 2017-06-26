@@ -3,7 +3,12 @@
  *  All rights reserved
  */
 
+pub mod idt;
+pub mod isr;
+use x86_64;
 
 pub fn init_trap() {
-
+    idt::load_idt();
+    isr::init_isr();
+    x86_64::instructions::interrupts::int3();
 }

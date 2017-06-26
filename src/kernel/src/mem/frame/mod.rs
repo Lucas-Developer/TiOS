@@ -5,6 +5,7 @@
 
 pub mod buddy;
 pub mod bitmap;
+pub mod temp;
 
 #[derive(Debug, Clone, Copy)]
 pub struct Frame {

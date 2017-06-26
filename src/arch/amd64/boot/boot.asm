@@ -3,6 +3,14 @@
 ; Written by Andrew Jianzhong Liu
 
 
+; Macro for generating an idt
+%macro GEN_IDT 0
+%rep 256
+dq 0x0
+dq 0x0
+%endrep
+%endmacro
+
     section .text
     bits 32
     
@@ -143,6 +151,9 @@ stack_bottom:
 stack_top:
 
     section .rodata
+
+    global gdt64
+    global gdt64.code
 gdt64:
     dq 0 ; zero entry
 .code: equ $ - gdt64 ; new
@@ -150,3 +161,11 @@ gdt64:
 .pointer:
     dw $ - gdt64 - 1
     dq gdt64
+
+    global idt64
+    global idt64.pointer
+idt64:
+GEN_IDT
+.pointer:
+	dw $ - idt64 - 1
+	dq idt64
