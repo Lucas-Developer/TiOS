@@ -3,6 +3,8 @@
  *  All rights reserved
  */
 
+// TODO: Implement a buddy frame allocator
+
 pub struct BuddyFrameAllocator {
 
 }
