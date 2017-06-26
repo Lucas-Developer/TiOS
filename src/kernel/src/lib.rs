@@ -1,4 +1,4 @@
-#![feature(lang_items, asm, unique, const_fn)]
+#![feature(lang_items, asm, unique, const_fn, naked_functions)]
 #![no_std]
 
 extern crate rlibc;
@@ -10,6 +10,7 @@ pub mod fs;
 #[macro_use]
 pub mod dev;
 pub mod trap;
+pub mod util;
 
 pub mod built_info {
    include!(concat!(env!("OUT_DIR"), "/built.rs"));
@@ -37,6 +38,8 @@ fn log_error(msg: &str){
     CONSOLE.lock().change_color_code(ColorCode::new(ConsoleColor::LightGray, ConsoleColor::Black));
 }
 
+
+
 #[no_mangle]
 pub extern fn rust_start(){
     print_build_info();
@@ -46,6 +49,9 @@ pub extern fn rust_start(){
     log("Initializing memory subsystems...");
     mem::init_mem();
 
+    log("Initializing I/O Devices...");
+    dev::init_io();
+
     // Initialize file system
     log("Initializing filesystem...");
     fs::init_fs();
@@ -53,6 +59,9 @@ pub extern fn rust_start(){
     // Initialize trap handlers
     log("Initializing traps...");
     trap::init_trap();
+
+    log("Initializing processes...");
+
 
     unsafe{asm!("hlt")};
 }
