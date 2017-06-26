@@ -4,21 +4,34 @@ ASFLAGS=-f elf64
 ARCH=${DEFAULT_ARCH}
 DEFAULT_ARCH=amd64
 TARGET=x86_64-TiOS
+debug: RELEASE_ARGS=
+debug: LIB_PATH=debug
+release: RELEASE_ARGS=--release
+release: LIB_PATH=release
 
-.PHONY: all clean arch
+.PHONY: all clean arch kernel release debug
 
-all: arch kernel user
+all: debug
+
+debug: os.iso
+
+release: os.iso
+
+os.iso: arch kernel user
 	mkdir -p bin
-	$(LD) -n --gc-sections -o bin/kernel.bin -T src/kernel.ld src/arch/boot.o src/kernel/target/$(TARGET)/debug/libkernel.a
+	$(LD) -n --gc-sections -o bin/kernel.bin -T src/kernel.ld src/arch/boot.o src/kernel/target/$(TARGET)/$(LIB_PATH)/libkernel.a
 	cp bin/kernel.bin isofiles/boot
 	grub-mkrescue -o os.iso isofiles -d /usr/lib/grub/i386-pc
 
-run: all
+run: debug
 	qemu-system-x86_64 -cdrom os.iso -m 64
+run-release: release
+	qemu-system-x86_64 -cdrom os.iso -m 64
+	
 arch:
 	cd src/arch; make ${ARCH}
 kernel:
-	cd src/kernel; xargo build --target $(TARGET)
+	cd src/kernel; xargo build --target $(TARGET) $(RELEASE_ARGS)
 user:
 
 clean:
