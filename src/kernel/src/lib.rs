@@ -24,6 +24,10 @@ fn print_build_info(){
              built_info::HOST,
              built_info::RUSTC_VERSION,
              built_info::BUILT_TIME_UTC);
+    #[cfg(debug_assertions)]
+    {
+        println!("Debug build. DO NOT USE FOR RELEASE.");
+    }
 }
 
 #[cfg(debug_assertions)]
@@ -48,7 +52,15 @@ fn print_boot_info(boot_info: &multiboot2::BootInformation){
     for section in elf_sections_tag.sections(){
             println!("    Section addr: 0x{:x}, size: 0x{:x}, flags: 0x{:x}", section.addr, section.size, section.flags);
         }
-    println!("Kernel and Multiboot ");
+
+    let kernel_start = elf_sections_tag.sections().map(|s| s.addr)
+        .min().unwrap();
+    let kernel_end = elf_sections_tag.sections().map(|s| s.addr + s.size)
+        .max().unwrap();
+    let multiboot_start = boot_info.start_address();
+    let multiboot_end = boot_info.end_address();
+    println!("Kernel start : {:x}, end : {:x}", kernel_start, kernel_end);
+    println!("Multiboot start : {:x}, end : {:x}", multiboot_start, multiboot_end);
     
 }
 
