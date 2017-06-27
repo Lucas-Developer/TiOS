@@ -8,6 +8,7 @@ pub mod keyboard;
 pub mod console;
 #[macro_use]
 pub mod clock;
+pub mod floppy;
 
 use spin::Mutex;
 

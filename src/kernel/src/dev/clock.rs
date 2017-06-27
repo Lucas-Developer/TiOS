@@ -59,7 +59,7 @@ pub use core::fmt;
 
 impl fmt::Debug for DateTime {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f,"{}:{}:{} {}/{}/{}", self.hour, self.min, self.sec, self.day, self.month, self.year)
+        write!(f,"{:02}:{:02}:{:02} {}/{}/{}", self.hour, self.min, self.sec, self.day, self.month, self.year)
     }
 }
 

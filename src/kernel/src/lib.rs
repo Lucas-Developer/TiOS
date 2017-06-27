@@ -23,7 +23,7 @@ pub mod built_info {
 }
 
 fn print_build_info(){
-    println!("TiOS kernel version {} ( {} , {} ) {} {}",
+    println!("TiOS kernel version {} ( {} , {} ) {} {}\n",
              built_info::PKG_VERSION,
              built_info::TARGET,
              built_info::HOST,
@@ -31,7 +31,7 @@ fn print_build_info(){
              built_info::BUILT_TIME_UTC);
     #[cfg(debug_assertions)]
     {
-        println!("Debug build. DO NOT USE FOR RELEASE.");
+        println!("Debug build. DO NOT USE FOR RELEASE.\n");
     }
 }
 
@@ -47,6 +47,7 @@ pub static BOOT_TIME: Mutex<DateTime> = Mutex::new(DateTime{
 });
 
 fn print_boot_info(boot_info: &multiboot2::BootInformation){
+    println!("System boot info:");
     match boot_info.boot_loader_name_tag() {
         Some(name_tag) => {
             println!("Bootloader: {}", name_tag.name());
@@ -93,6 +94,14 @@ fn log(msg: &str){
     println!("[{:08}] {}",boot_seconds,msg);
 }
 
+fn sys_halt(code: usize) -> ! {
+    println!("Code {}",code);
+    log("System halted.");
+    unsafe{asm!("cli")};
+    unsafe{asm!("hlt")};
+    panic!()
+}
+
 #[no_mangle]
 pub extern fn rust_start(mb_info_addr: usize){
     
@@ -113,7 +122,7 @@ pub extern fn rust_start(mb_info_addr: usize){
     // Initialize trap handlers
     trap::init_trap();
 
-    unsafe{asm!("hlt")};
+    sys_halt(0);
 }
 
 #[lang = "eh_personality"] extern fn eh_personality() {}

@@ -19,3 +19,14 @@ pub trait FrameAllocator {
     fn deallocate_frame(&mut self, f: Frame);
 }
 
+pub enum FA{
+    Area(temp::AreaFrameAllocator),
+    Bitmap(bitmap::BitmapAllocator),
+    Buddy(buddy::BuddyFrameAllocator),
+    Uninitialized,
+}
+
+
+
+use spin::Mutex;
+pub static FRAME_ALLOCATOR : Mutex<FA> = Mutex::new(FA::Uninitialized);
