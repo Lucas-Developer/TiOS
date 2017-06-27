@@ -9,12 +9,14 @@ extern crate multiboot2;
 extern crate lazy_static;
 extern crate x86_64;
 
-pub mod mem;
-pub mod fs;
 #[macro_use]
 pub mod dev;
+pub mod fs;
+pub mod mem;
+pub mod procs;
 pub mod trap;
 pub mod util;
+
 
 pub mod built_info {
    include!(concat!(env!("OUT_DIR"), "/built.rs"));
@@ -33,7 +35,17 @@ fn print_build_info(){
     }
 }
 
-#[cfg(debug_assertions)]
+use spin::Mutex;
+use dev::clock::DateTime;
+pub static BOOT_TIME: Mutex<DateTime> = Mutex::new(DateTime{
+    year: 1970,
+    month: 1,
+    day: 1,
+    hour: 0,
+    min: 0,
+    sec: 0,
+});
+
 fn print_boot_info(boot_info: &multiboot2::BootInformation){
     match boot_info.boot_loader_name_tag() {
         Some(name_tag) => {
@@ -44,44 +56,41 @@ fn print_boot_info(boot_info: &multiboot2::BootInformation){
         }
     };
 
-    println!("Memory area data:");
-    for area in boot_info.memory_map_tag()
-        .expect("Memory map tag required").memory_areas(){
-            println!("    Area start: {:x} length: {:x}", area.base_addr, area.length)
+    let rtctime = dev::clock::RTC.lock().read_rtc();
+    println!("CMOS clock: {:?}", rtctime);
+    BOOT_TIME.lock().update(rtctime);
+    
+
+    #[cfg(debug_assertions)]
+    {
+        println!("Memory area data:");
+        for area in boot_info.memory_map_tag()
+            .expect("Memory map tag required").memory_areas(){
+                println!("    Area start: {:x} length: {:x}", area.base_addr, area.length)
+        }
+    
+        println!("Kernel ELF Sections:");
+        let elf_sections_tag = boot_info.elf_sections_tag().expect("Kernel ELF sections required.");
+        for section in elf_sections_tag.sections(){
+                println!("    Section addr: 0x{:x}, size: 0x{:x}, flags: 0x{:x}", section.addr, section.size, section.flags);
+            }
+
+        let kernel_start = elf_sections_tag.sections().map(|s| s.addr)
+            .min().unwrap();
+        let kernel_end = elf_sections_tag.sections().map(|s| s.addr + s.size)
+            .max().unwrap();
+        let multiboot_start = boot_info.start_address();
+        let multiboot_end = boot_info.end_address();
+        println!("Kernel start : {:x}, end : {:x}", kernel_start, kernel_end);
+        println!("Multiboot start : {:x}, end : {:x}", multiboot_start, multiboot_end);
     }
     
-    println!("Kernel ELF Sections:");
-    let elf_sections_tag = boot_info.elf_sections_tag().expect("Kernel ELF sections required.");
-    for section in elf_sections_tag.sections(){
-            println!("    Section addr: 0x{:x}, size: 0x{:x}, flags: 0x{:x}", section.addr, section.size, section.flags);
-        }
-
-    let kernel_start = elf_sections_tag.sections().map(|s| s.addr)
-        .min().unwrap();
-    let kernel_end = elf_sections_tag.sections().map(|s| s.addr + s.size)
-        .max().unwrap();
-    let multiboot_start = boot_info.start_address();
-    let multiboot_end = boot_info.end_address();
-    println!("Kernel start : {:x}, end : {:x}", kernel_start, kernel_end);
-    println!("Multiboot start : {:x}, end : {:x}", multiboot_start, multiboot_end);
-    
-}
-
-#[cfg(not(debug_assertions))]
-fn print_boot_info(boot_info: &multiboot2::BootInformation){
-        match boot_info.boot_loader_name_tag() {
-        Some(name_tag) => {
-            println!("Bootloader: {}", name_tag.name());
-        }
-        None => {
-            println!("No bootloader information provided.");
-        }
-    };
 }
 
 #[allow(dead_code)]
 fn log(msg: &str){
-    println!("[<TimePlaceholder>] {}",msg);
+    let boot_seconds = dev::clock::RTC.lock().read_rtc() - *(BOOT_TIME.lock());
+    println!("[{:08}] {}",boot_seconds,msg);
 }
 
 #[no_mangle]
@@ -93,7 +102,7 @@ pub extern fn rust_start(mb_info_addr: usize){
     print_boot_info(&boot_info);
 
     // Set up new expandable page table and remap the kernel
-    mem::init_mem();
+    mem::init_mem(&boot_info);
 
     // Initialize all drivers
     dev::init_io();
