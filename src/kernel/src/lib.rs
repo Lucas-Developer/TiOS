@@ -38,7 +38,7 @@ fn print_build_info(){
 use spin::Mutex;
 use dev::clock::DateTime;
 pub static BOOT_TIME: Mutex<DateTime> = Mutex::new(DateTime{
-    year: 1970,
+    year: 00,
     month: 1,
     day: 1,
     hour: 0,
@@ -85,7 +85,7 @@ fn print_boot_info(boot_info: &multiboot2::BootInformation){
         println!("Kernel start : {:x}, end : {:x}", kernel_start, kernel_end);
         println!("Multiboot start : {:x}, end : {:x}", multiboot_start, multiboot_end);
     }
-    
+    println!("");
 }
 
 #[allow(dead_code)]

@@ -7,10 +7,15 @@ pub mod buddy;
 pub mod bitmap;
 pub mod temp;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq, PartialOrd, Ord)]
 pub struct Frame {
     num: usize,
-    ref_count: usize,
+}
+
+impl Frame{
+    fn containing_address(address: usize) -> Frame{
+        Frame{ num: address/ super::page::PAGE_SIZE }
+    }
 }
 
 pub trait FrameAllocator {
@@ -20,7 +25,6 @@ pub trait FrameAllocator {
 }
 
 pub enum FA{
-    Area(temp::AreaFrameAllocator),
     Bitmap(bitmap::BitmapAllocator),
     Buddy(buddy::BuddyFrameAllocator),
     Uninitialized,
