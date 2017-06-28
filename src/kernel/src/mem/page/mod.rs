@@ -230,5 +230,5 @@ pub fn remap_kernel<A>(allocator: &mut A, boot_info: &BootInformation) where A: 
         old_table.p4_frame.start_address()
     );
     active_table.unmap(old_p4_page, allocator);
-    println!("guard page at {:#x}", old_p4_page.start_address());
+    //println!("guard page at {:#x}", old_p4_page.start_address());
 }

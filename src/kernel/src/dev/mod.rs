@@ -83,7 +83,8 @@ impl<T: InOut> Port<T> {
 }
 
 pub fn init_io(){
-    super::log("Initializing Keyboard...");
+    
     keyboard::init_kbd();
-
+    floppy::init_floppy();
+    super::log("I/O Devices Initialized.");
 }

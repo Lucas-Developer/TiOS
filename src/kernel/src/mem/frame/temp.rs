@@ -82,11 +82,13 @@ impl FrameAllocator for AreaFrameAllocator {
         }
     }
 
+    #[allow(unused_variables)]
     fn allocate_frames(&mut self, num:usize) -> Option<&[Frame]> {
         unimplemented!()
     }
 
+    #[allow(unused_variables)]
     fn deallocate_frame(&mut self, frame: Frame) {
-        println!("Frame deallocation not yet implemented for area frame allocator!");
+        //println!("Frame deallocation not yet implemented for area frame allocator!");
     }
 }

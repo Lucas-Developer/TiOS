@@ -10,5 +10,5 @@ pub static KEYBOARD: Mutex<Port<u8>> = Mutex::new(unsafe {
 });
 
 pub fn init_kbd(){
-
+    
 }

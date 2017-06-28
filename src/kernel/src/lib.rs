@@ -118,14 +118,14 @@ pub extern fn rust_start(mb_info_addr: usize){
     // Set up new expandable page table and remap the kernel
     mem::init_mem(&boot_info);
 
+    // Initialize trap handlers
+    trap::init_trap();
+
     // Initialize all drivers
     dev::init_io();
 
     // Initialize file system
     fs::init_fs();
-
-    // Initialize trap handlers
-    trap::init_trap();
 
     sys_halt(0);
 }
