@@ -6,6 +6,7 @@
 
 use super::super::frame::Frame;
 
+#[derive(Debug)]
 pub struct Entry(u64);
 
 

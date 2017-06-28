@@ -13,14 +13,8 @@ pub fn init_mem(boot_info: &multiboot2::BootInformation){
     {
         println!("Initializing memory systems...");
     }
-    init_frame_allocator(boot_info);
-    super::log("Memory Frame Allocator initialized.");
 
-    remap_kernel();
-    super::log("Kernel remapped.");
-}
 
-fn init_frame_allocator(boot_info: &multiboot2::BootInformation) {
     use self::frame::temp::*;
     let elf_sections_tag = boot_info.elf_sections_tag().expect("Kernel ELF sections required.");
     let kernel_start = elf_sections_tag.sections().map(|s| s.addr)
@@ -32,10 +26,10 @@ fn init_frame_allocator(boot_info: &multiboot2::BootInformation) {
     let mut frame_allocator : AreaFrameAllocator = AreaFrameAllocator::new(kernel_start as usize,
         kernel_end as usize, multiboot_start as usize, multiboot_end as usize, 
         boot_info.memory_map_tag().unwrap().memory_areas());
-    //test_paging(&mut frame_allocator);
 
+    super::log("Memory Frame Allocator initialized.");
+
+    self::page::remap_kernel(&mut frame_allocator, boot_info);
+    super::log("Kernel remapped.");
 }
 
-fn remap_kernel(){
-    
-}

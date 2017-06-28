@@ -7,10 +7,29 @@ pub mod buddy;
 pub mod bitmap;
 pub mod temp;
 
-#[derive(Debug, Clone, Copy, Eq, PartialEq, PartialOrd, Ord)]
+#[derive(Debug, Eq, PartialEq, PartialOrd, Ord)]
 pub struct Frame {
     pub num: usize,
 }
+
+pub struct FrameIter {
+    start: Frame,
+    end: Frame,
+}
+
+impl Iterator for FrameIter {
+    type Item = Frame;
+
+    fn next(&mut self) -> Option<Frame> {
+        if self.start <= self.end {
+            let frame = self.start.clone();
+            self.start.num += 1;
+            Some(frame)
+        } else {
+            None
+        }
+    }
+ }
 
 use super::page::PhysicalAddress;
 impl Frame{
@@ -18,9 +37,21 @@ impl Frame{
         Frame{ num: address/ super::page::PAGE_SIZE }
     }
 
+    pub fn range_inclusive(start: Frame, end: Frame) -> FrameIter {
+        FrameIter {
+            start: start,
+            end: end,
+        }
+    }
 
     pub fn start_address(&self) -> PhysicalAddress {
         self.num * super::page::PAGE_SIZE
+    }
+
+    pub fn clone(&self) -> Frame{
+        Frame{
+            num: self.num,
+        }
     }
 }
 

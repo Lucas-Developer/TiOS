@@ -24,10 +24,11 @@ os.iso: arch kernel user
 	grub-mkrescue -o os.iso isofiles -d /usr/lib/grub/i386-pc
 
 run: debug
-	qemu-system-x86_64 -cdrom os.iso -m 64
+	qemu-system-x86_64 -cdrom os.iso -m 64 -s
 run-release: release
 	qemu-system-x86_64 -cdrom os.iso -m 64
-	
+gdb:
+	gdb "bin/kernel.bin" -ex "target remote :1234"
 arch:
 	cd src/arch; make ${ARCH}
 kernel:
