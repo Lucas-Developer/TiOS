@@ -10,9 +10,9 @@ use x86_64;
 
 pub fn init_trap() {
     idt::load_idt();
-    super::log("Interrupt Descriptor Table loaded.");
+    super::log_status("Interrupt Descriptor Table Initialization ...........  ", Ok(()));
     isr::init_isr();
-    super::log("Initial interrupt service routines loaded.");
+    super::log_status("Initial interrupt service routines load .............  ", Ok(()));
     #[cfg(debug_assertions)]
     {
         x86_64::instructions::interrupts::int3();

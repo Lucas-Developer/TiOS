@@ -96,6 +96,25 @@ fn log(msg: &str){
     println!("[{:08}] {}",boot_seconds,msg);
 }
 
+#[allow(dead_code)]
+fn log_status(msg:&str, res: Result<(),isize>){
+    let boot_seconds = dev::clock::RTC.lock().read_rtc() - *(BOOT_TIME.lock());
+    use dev::console::{ColorCode,ConsoleColor};
+    let good_color = ColorCode::new(ConsoleColor::Green, ConsoleColor::Black);
+    let bad_color = ColorCode::new(ConsoleColor::White, ConsoleColor::Red);
+    print_color!(good_color, "[{:08}] ", boot_seconds);
+    print!("{}  ", msg);
+    match res {
+        Ok(_) => {
+            print_color!(good_color, "[OK]");
+        }
+        Err(code) => {
+            print_color!(bad_color, "[Err: 0x{:x}]", code);
+        }
+    };
+    println!("");
+}
+
 fn sys_halt(code: usize) -> ! {
     println!("Code {}",code);
     log("System halted.");

@@ -27,9 +27,9 @@ pub fn init_mem(boot_info: &multiboot2::BootInformation){
         kernel_end as usize, multiboot_start as usize, multiboot_end as usize, 
         boot_info.memory_map_tag().unwrap().memory_areas());
 
-    super::log("Memory Frame Allocator initialized.");
+    super::log_status("Memory Frame Allocator Initialization ...............  ", Ok(()));
 
     self::page::remap_kernel(&mut frame_allocator, boot_info);
-    super::log("Kernel remapped.");
+    super::log_status("Kernel Remapping ....................................  ", Ok(()));
 }
 

@@ -71,6 +71,10 @@ impl Console{
         self.color_code = cc;
     }
 
+    pub fn get_color_code(&self) -> ColorCode {
+        self.color_code
+    }
+
      pub fn clear_screen(&mut self){
         for i in 0..CONSOLE_HEIGHT {
             for j in 0..CONSOLE_WIDTH {
@@ -153,6 +157,15 @@ pub fn print(args: fmt::Arguments) {
     CONSOLE.lock().write_fmt(args).unwrap();
 }
 
+pub fn print_color(args: fmt::Arguments, color_code: ColorCode){
+    use core::fmt::Write;
+    let mut c = CONSOLE.lock();
+    let old_cc = c.get_color_code();
+    c.change_color_code(color_code);
+    c.write_fmt(args).unwrap();
+    c.change_color_code(old_cc);
+}
+
 macro_rules! print {
     ($($arg:tt)*) => ({
         $crate::dev::console::print(format_args!($($arg)*));
@@ -162,4 +175,10 @@ macro_rules! print {
 macro_rules! println {
     ($fmt:expr) => (print!(concat!($fmt, "\n")));
     ($fmt:expr, $($arg:tt)*) => (print!(concat!($fmt, "\n"), $($arg)*));
+}
+
+macro_rules! print_color {
+    ($cc:expr, $($arg:tt)*) => ({
+        $crate::dev::console::print_color(format_args!($($arg)*), $cc);
+    });
 }

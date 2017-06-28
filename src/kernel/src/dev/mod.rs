@@ -111,5 +111,5 @@ pub fn init_io(){
     
     keyboard::init_kbd();
     floppy::init_floppy();
-    super::log("I/O Devices Initialized.");
+    super::log_status("I/O Devices Initialization ..........................  ", Err(0b11));
 }
