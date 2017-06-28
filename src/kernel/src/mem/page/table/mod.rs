@@ -62,6 +62,7 @@ impl<L> Table<L> where L: TableLevel {
     }
 }
 
+use mem::frame::FrameAllocator;
 impl<L> Table<L> where L: HierarchicalTableLevel {
     fn next_table_address(&self, index: usize) -> Option<usize> {
         let entry_flags = self[index].flags();
@@ -81,6 +82,18 @@ impl<L> Table<L> where L: HierarchicalTableLevel {
     pub fn next_table_mut(&mut self, index: usize) -> Option<&mut Table<L::NextLevel>> where L: HierarchicalTableLevel {
         self.next_table_address(index)
             .map(|address| unsafe { &mut *(address as *mut _) })
+    }
+
+    pub fn next_table_create<A>(&mut self, index: usize, allocator: &mut A)
+                    -> &mut Table<L::NextLevel> where A: FrameAllocator {
+        if self.next_table(index).is_none() {
+            assert!(!self.entries[index].flags().contains(HUGE_PAGE),
+                "mapping code does not support huge pages");
+            let frame = allocator.allocate_frame().expect("no frames available");
+            self.entries[index].set(frame, PRESENT | WRITABLE);
+            self.next_table_mut(index).unwrap().zero();
+        }
+        self.next_table_mut(index).unwrap()
     }
 }
 

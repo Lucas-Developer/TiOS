@@ -9,7 +9,7 @@ pub mod temp;
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq, PartialOrd, Ord)]
 pub struct Frame {
-    num: usize,
+    pub num: usize,
 }
 
 use super::page::PhysicalAddress;
