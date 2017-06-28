@@ -89,7 +89,7 @@ impl RealTimeClock {
         let mut month = self.get_rtc_reg(0x08);
         let mut year = self.get_rtc_reg(0x09);
 
-        let registerB = self.get_rtc_reg(0x0b);
+        let register_b = self.get_rtc_reg(0x0b);
 
         while {
             last_second = second;
@@ -110,7 +110,7 @@ impl RealTimeClock {
         }{}
 
         // Convert BCD to binary values if necessary
-        if !(registerB & 0x04 != 0) {
+        if !(register_b & 0x04 != 0) {
             second = (second & 0x0F) + ((second / 16) * 10);
             minute = (minute & 0x0F) + ((minute / 16) * 10);
             hour = ( (hour & 0x0F) + (((hour & 0x70) / 16) * 10) ) | (hour & 0x80);

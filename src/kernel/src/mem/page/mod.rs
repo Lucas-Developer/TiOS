@@ -131,4 +131,58 @@ impl ActivePageTable {
         use mem::page::entry::PRESENT;
         p1[page.p1_index()].set(frame, flags | PRESENT);
     }
+
+    pub fn map<A>(&mut self, page: Page, flags: EntryFlags, allocator: &mut A)
+        where A: FrameAllocator {
+        let frame = allocator.allocate_frame().expect("out of memory");
+        self.map_to(page, frame, flags, allocator)
+    }
+
+    pub fn identity_map<A>(&mut self,
+                            frame: Frame,
+                            flags: EntryFlags,
+                            allocator: &mut A)
+                            where A: FrameAllocator{
+        let page = Page::containing_address(frame.start_address());
+        self.map_to(page, frame, flags, allocator)
+    }
+
+    pub fn unmap<A> (&mut self, page: Page, allocator: &mut A) 
+                            where A: FrameAllocator {
+        assert!(self.translate(page.start_address()).is_some());
+
+        let p1 = self.p4_mut()
+                     .next_table_mut(page.p4_index())
+                     .and_then(|p3| p3.next_table_mut(page.p3_index()))
+                     .and_then(|p2| p2.next_table_mut(page.p2_index()))
+                     .expect("mapping code does not support huge pages");
+        let frame = p1[page.p1_index()].pointed_frame().unwrap();
+        p1[page.p1_index()].set_unused();
+
+        // TODO free p(1,2,3) table if empty
+
+        use x86_64::instructions::tlb;
+        use x86_64::VirtualAddress;
+        tlb::flush(VirtualAddress(page.start_address()));
+        allocator.deallocate_frame(frame);
+    }
+}
+
+#[allow(dead_code)]
+pub fn test_paging<A>(allocator: &mut A)
+    where A: FrameAllocator
+{
+    use log;
+    log("Testing Paging...");
+    let mut page_table = unsafe { ActivePageTable::new() };
+
+    let addr = 42 * 512 * 512 * 4096; // 42th P3 entry
+    let page = Page::containing_address(addr);
+    let frame = allocator.allocate_frame().expect("no more frames");
+    println!("None = {:?}, map to {:?}",
+         page_table.translate(addr),
+         frame);
+    page_table.map_to(page, frame, EntryFlags::empty(), allocator);
+    println!("Some = {:?}", page_table.translate(addr));
+    println!("next free frame: {:?}", allocator.allocate_frame());
 }
