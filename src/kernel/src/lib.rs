@@ -113,6 +113,7 @@ pub extern fn rust_start(mb_info_addr: usize){
     print_boot_info(&boot_info);
 
     util::enable_nxe_bit();
+    util::enable_write_protect_bit();
 
     // Set up new expandable page table and remap the kernel
     mem::init_mem(&boot_info);

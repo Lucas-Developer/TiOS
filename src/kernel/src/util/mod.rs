@@ -13,3 +13,9 @@ pub fn enable_nxe_bit() {
         wrmsr(IA32_EFER, efer | nxe_bit);
     }
 }
+
+pub fn enable_write_protect_bit() {
+    use x86_64::registers::control_regs::{cr0, cr0_write, Cr0};
+
+    unsafe { cr0_write(cr0() | Cr0::WRITE_PROTECT) };
+}

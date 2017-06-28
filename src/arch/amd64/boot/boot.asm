@@ -166,6 +166,8 @@ gdt64:
     dw $ - gdt64 - 1
     dq gdt64
 
+    section .data
+
     global idt64
     global idt64.pointer
 idt64:
