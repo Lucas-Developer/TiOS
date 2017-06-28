@@ -82,6 +82,31 @@ impl<T: InOut> Port<T> {
     }
 }
 
+pub struct UnsafePort<T: InOut> {
+    port: u16,
+    phantom: PhantomData<T>,
+}
+
+impl<T: InOut> UnsafePort<T> {
+    pub const unsafe fn new(port: u16) -> UnsafePort<T> {
+        UnsafePort { port: port, phantom: PhantomData }
+    }
+
+    pub unsafe fn read(&mut self) -> T {
+        T::port_in(self.port)
+    }
+
+    pub unsafe fn write(&mut self, value: T) {
+        T::port_out(self.port, value);
+    }
+}
+
+struct Pic {
+    offset: u8,
+    command: UnsafePort<u8>,
+    data: UnsafePort<u8>,
+}
+
 pub fn init_io(){
     
     keyboard::init_kbd();
