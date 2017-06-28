@@ -12,9 +12,15 @@ pub struct Frame {
     num: usize,
 }
 
+use super::page::PhysicalAddress;
 impl Frame{
-    fn containing_address(address: usize) -> Frame{
+    pub fn containing_address(address: usize) -> Frame{
         Frame{ num: address/ super::page::PAGE_SIZE }
+    }
+
+
+    pub fn start_address(&self) -> PhysicalAddress {
+        self.num * super::page::PAGE_SIZE
     }
 }
 

@@ -75,6 +75,10 @@ set_page_tables:
     inc ecx
     cmp ecx, 512
     jne .map_p2_table
+
+    mov eax, p4_table
+    or eax, 0b11 ; present + writable
+    mov [p4_table + 511 * 8], eax
     ret
 
 

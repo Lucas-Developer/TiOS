@@ -16,6 +16,7 @@ volatile = "*"
 spin = "*"
 multiboot2 = "*"
 x86_64 = "*"
+bitflags = "*"
 
 [dependencies.lazy_static]
 version = "0.2.4"

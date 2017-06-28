@@ -15,7 +15,7 @@ pub fn init_mem(boot_info: &multiboot2::BootInformation){
     }
     init_frame_allocator(boot_info);
     super::log("Memory Frame Allocator initialized.");
-    
+
     remap_kernel();
     super::log("Kernel remapped.");
 }
@@ -33,16 +33,6 @@ fn init_frame_allocator(boot_info: &multiboot2::BootInformation) {
     let mut frame_allocator : AreaFrameAllocator = AreaFrameAllocator::new(kernel_start as usize,
         kernel_end as usize, multiboot_start as usize, multiboot_end as usize, 
         boot_info.memory_map_tag().unwrap().memory_areas());
-
-    for i in 0.. {
-        if let None = frame_allocator.allocate_frame() {
-            println!("allocated {} frames", i);
-            break;
-        }
-    }
-    super::sys_halt(1);
-
-    
 
 }
 

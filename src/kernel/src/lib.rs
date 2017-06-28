@@ -8,6 +8,8 @@ extern crate multiboot2;
 #[macro_use]
 extern crate lazy_static;
 extern crate x86_64;
+#[macro_use]
+extern crate bitflags;
 
 #[macro_use]
 pub mod dev;
