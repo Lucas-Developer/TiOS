@@ -19,7 +19,6 @@ impl TemporaryPage {
 
     pub fn new<A>(page: Page, allocator: &mut A) -> TemporaryPage
         where A: FrameAllocator {
-            println!("{:?}",page);
         TemporaryPage {
             page: page,
             allocator: TinyAllocator::new(allocator),
