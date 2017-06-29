@@ -1,5 +1,5 @@
 
 
-pub fn init_floppy() {
-    
+pub fn init_floppy() -> isize {
+    1
 }

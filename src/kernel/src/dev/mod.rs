@@ -108,8 +108,12 @@ struct Pic {
 }
 
 pub fn init_io(){
-    
-    keyboard::init_kbd();
-    floppy::init_floppy();
-    super::log_status("I/O Devices Initialization ..........................  ", Err(0b11));
+    let mut status: isize = 0;
+    status = (status << 1) | keyboard::init_kbd();
+    status = (status << 1) | floppy::init_floppy();
+    let status = match status {
+        0 => Ok(()),
+        code => Err(code),
+    };
+    super::log_status("I/O Devices Initialization ..........................  ", status);
 }
