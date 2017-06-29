@@ -1,4 +1,4 @@
-#![feature(lang_items, asm, unique, const_fn, naked_functions, core_intrinsics)]
+#![feature(alloc, lang_items, asm, unique, const_fn, naked_functions, core_intrinsics)]
 #![no_std]
 
 extern crate rlibc;
@@ -10,6 +10,11 @@ extern crate lazy_static;
 extern crate x86_64;
 #[macro_use]
 extern crate bitflags;
+
+/* Temporary heap allocator crate */
+extern crate bump_allocator;
+#[macro_use]
+extern crate alloc;
 
 #[macro_use]
 pub mod dev;

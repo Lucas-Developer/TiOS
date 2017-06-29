@@ -24,3 +24,6 @@ features = ["spin_no_std"]
 
 [profile.release]
 panic = "abort"
+
+[dependencies.bump_allocator]
+path = "../../libs/bump_allocator"
