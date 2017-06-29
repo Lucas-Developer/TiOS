@@ -68,7 +68,7 @@ pub fn init_mem(boot_info: &multiboot2::BootInformation){
     super::log_status("Kernel Remapping ....................................  ", Ok(()));
     
     use self::page::Page;
-    use bump_allocator::{HEAP_START, HEAP_SIZE};
+    use hole_allocator::{HEAP_START, HEAP_SIZE};
     
     let heap_start_page = Page::containing_address(HEAP_START);
     let heap_end_page = Page::containing_address(HEAP_START + HEAP_SIZE-1);

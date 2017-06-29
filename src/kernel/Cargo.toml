@@ -27,3 +27,7 @@ panic = "abort"
 
 [dependencies.bump_allocator]
 path = "../../libs/bump_allocator"
+
+
+[dependencies.hole_allocator]
+path = "../../libs/hole_allocator"

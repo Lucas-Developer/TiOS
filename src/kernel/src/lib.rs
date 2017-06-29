@@ -12,7 +12,7 @@ extern crate x86_64;
 extern crate bitflags;
 
 /* Temporary heap allocator crate */
-extern crate bump_allocator;
+extern crate hole_allocator;
 #[macro_use]
 extern crate alloc;
 
