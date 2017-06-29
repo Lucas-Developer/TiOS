@@ -5,9 +5,13 @@
 
 use super::*;
 use multiboot2::{MemoryAreaIter, MemoryArea};
+use core::convert::{From, Into};
 
+#[repr(C)]
 pub struct BitmapAllocator {
-    
+    bitmap_addr : u64,
+    bitmap_length : u64,
+    next_free_frame: u64,
 }
 
 #[allow(dead_code, unused_variables)]
@@ -16,16 +20,12 @@ impl BitmapAllocator {
         
         unimplemented!()
     }
-
-    fn get_next_frame(&mut self) -> Option<Frame> {
-        unimplemented!()
-    }
 }
 
 #[allow(dead_code, unused_variables)]
 impl FrameAllocator for BitmapAllocator {
     fn allocate_frame(&mut self) -> Option<Frame>{
-        self.get_next_frame()
+        unimplemented!()
     }
 
     fn allocate_frames(&mut self, num:usize) -> Option<&[Frame]> {
@@ -33,6 +33,12 @@ impl FrameAllocator for BitmapAllocator {
     }
 
     fn deallocate_frame(&mut self,f : Frame){
+        unimplemented!()
+    }
+}
+
+impl From<super::temp::AreaFrameAllocator> for BitmapAllocator {
+    fn from(tmpalloc: super::temp::AreaFrameAllocator) -> BitmapAllocator {
         unimplemented!()
     }
 }

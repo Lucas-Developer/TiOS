@@ -11,10 +11,10 @@ pub struct Fat12 {
 }
 
 impl RawFileSystem for Fat12 {
-    fn create_file(path: &str) -> Option<()> {
+    fn create(path: &str) -> Option<()> {
         unimplemented!()
     }
-    fn delete_file(path: &str) -> Option<()> {
+    fn delete(path: &str) -> Option<()> {
         unimplemented!()
     }
 }

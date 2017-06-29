@@ -10,8 +10,17 @@ pub fn init_fs(){
     
 }
 
+pub struct File {
+
+}
+
 pub trait RawFileSystem {
-    fn create_file(path: &str) -> Option<()>;
-    fn delete_file(path: &str) -> Option<()>;
-    // TODO: Interfaces for reading and writing files
+    fn create(path: &str) -> Option<()>;
+    fn delete(path: &str) -> Option<()>;
+    /*
+    fn open(path: &str) -> File;
+    fn close(file: File);
+    fn read(file: File) -> &[u8];
+    fn write(file: File, &[u8]);
+    */
 }

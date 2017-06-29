@@ -3,18 +3,28 @@
  *  All rights reserved
  */
 
-pub mod idt;
+
 #[macro_use]
 pub mod isr;
+
+pub mod idt;
+
 use x86_64;
 
+use self::idt::IdtFrontEnd;
+
+lazy_static!{
+    static ref Idt : IdtFrontEnd = {
+        let idt = IdtFrontEnd{};
+        idt
+    };
+}
+
 pub fn init_trap() {
-    idt::load_idt();
+    Idt.load_idt();
     super::log_status("Interrupt Descriptor Table Initialization ...........  ", Ok(()));
-    isr::init_isr();
-    super::log_status("Initial interrupt service routines load .............  ", Ok(()));
+
+    //super::log_status("Initial interrupt service routines load .............  ", Ok(()));
     #[cfg(debug_assertions)]
-    {
-        x86_64::instructions::interrupts::int3();
-    }
+    
 }

@@ -87,24 +87,28 @@ macro_rules! handler_with_error_code {
 #[derive(Debug)]
 #[repr(C)]
 pub struct ExceptionStackFrame {
-    instruction_pointer : u64,
-    code_segment : u64,
-    cpu_flags : u64,
-    stack_pointer : u64,
-    stack_segment : u64,
+    pub instruction_pointer : u64,
+    pub code_segment : u64,
+    pub cpu_flags : u64,
+    pub stack_pointer : u64,
+    pub stack_segment : u64,
 }
 
-extern "C" fn breakpoint_handler(stack_frame : &ExceptionStackFrame) {
+
+pub extern fn default_handler(stack_frame : &ExceptionStackFrame) {
+    let stack_frame = &*stack_frame;
+    println!("\nInterrupt Default Handler\n{:#?}",stack_frame);
+    loop{};
+}
+
+pub extern fn default_handler_with_error_code(stack_frame : &ExceptionStackFrame, error_code: usize) {
+    let stack_frame = &*stack_frame;
+    println!("\nInterrupt Default Handler\nError Code: {}\n{:#?}",error_code, stack_frame);
+}
+
+pub extern "C" fn breakpoint_handler(stack_frame : &ExceptionStackFrame) {
     let stack_frame = &*stack_frame;
     println!("\nPROCESSOR EXCEPTION: BREAKPOINT at {:#x}\n{:#?}",
         stack_frame.instruction_pointer, stack_frame
     );
-}
-
-pub fn init_isr(){
-    unsafe{set_isr_gate(3,handler!(breakpoint_handler))};
-}
-
-pub fn set_isr(gate: usize, handler_addr:usize){
-    unsafe{set_isr_gate(gate,handler_addr)};
 }
