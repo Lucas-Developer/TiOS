@@ -78,7 +78,7 @@ impl Iterator for PageIter {
 
 
 use mem::frame::Frame;
-use mem::page::entry::{HUGE_PAGE,WRITABLE,PRESENT};
+pub use mem::page::entry::{HUGE_PAGE,WRITABLE,PRESENT};
 use mem::frame::FrameAllocator;
 use mem::page::entry::EntryFlags;
 use mem::page::temp_page::TemporaryPage;
@@ -204,7 +204,8 @@ impl InactivePageTable {
 }
 
 use multiboot2::BootInformation;
-pub fn remap_kernel<A>(allocator: &mut A, boot_info: &BootInformation) where A: FrameAllocator {
+pub fn remap_kernel<A>(allocator: &mut A, boot_info: &BootInformation) 
+                    -> ActivePageTable where A: FrameAllocator {
     let mut temporary_page = TemporaryPage::new(Page { number: 0xdea000 },
         allocator); // Random page 
 
@@ -257,4 +258,5 @@ pub fn remap_kernel<A>(allocator: &mut A, boot_info: &BootInformation) where A: 
     );
     active_table.unmap(old_p4_page, allocator);
     //println!("guard page at {:#x}", old_p4_page.start_address());
+    active_table
 }
