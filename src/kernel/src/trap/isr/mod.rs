@@ -112,3 +112,10 @@ pub extern "C" fn breakpoint_handler(stack_frame : &ExceptionStackFrame) {
         stack_frame.instruction_pointer, stack_frame
     );
 }
+
+pub extern fn double_fault_handler(
+    stack_frame: &ExceptionStackFrame, _error_code: u64) {
+    
+    println!("\nEXCEPTION: DOUBLE FAULT\n{:#?}", stack_frame);
+    unsafe{asm!("hlt")};
+}

@@ -25,6 +25,7 @@ impl IdtFrontEnd {
         // TODO: Fill in all default handlers
         self.set_isr(0,handler!(default_handler));
         self.set_isr(3,handler!(breakpoint_handler));
+        self.set_isr(8,handler_with_error_code!(double_fault_handler));
     }
     
     pub fn set_isr(&self, gate: usize, handler_addr:usize){ // TODO: mask gate in an enum and hander_addr in a function pointer

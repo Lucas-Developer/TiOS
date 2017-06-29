@@ -26,5 +26,10 @@ pub fn init_trap() {
 
     //super::log_status("Initial interrupt service routines load .............  ", Ok(()));
     #[cfg(debug_assertions)]
-    
+    {
+        x86_64::instructions::interrupts::int3();
+        //unsafe {
+        //    asm!("mov dx, 0; div dx" ::: "ax", "dx" : "volatile", "intel")
+        //}
+    }
 }

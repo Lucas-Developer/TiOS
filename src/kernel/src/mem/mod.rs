@@ -6,6 +6,7 @@
 pub mod frame;
 pub mod page;
 pub use self::page::test_paging;
+pub mod stack_allocator;
 use multiboot2;
 
 pub fn init_mem(boot_info: &multiboot2::BootInformation){
