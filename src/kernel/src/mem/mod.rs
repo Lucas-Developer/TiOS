@@ -95,10 +95,15 @@ pub fn init_mem(boot_info: &multiboot2::BootInformation) -> MemoryController{
 pub use self::stack_allocator::Stack;
 
 
-// TODO: Modify allocator to allow for different allocators
 pub struct MemoryController {
     active_table: page::ActivePageTable,
     frame_allocator: frame::temp::AreaFrameAllocator,
+    stack_allocator: stack_allocator::StackAllocator,
+}
+
+pub struct RuntimeMemoryController {
+    active_table: page::ActivePageTable,
+    frame_allocator: frame::bitmap::BitmapAllocator,
     stack_allocator: stack_allocator::StackAllocator,
 }
 
@@ -109,5 +114,17 @@ impl MemoryController {
                                     ref mut stack_allocator } = self;
         stack_allocator.alloc_stack(active_table, frame_allocator,
                                     size_in_pages)
+    }
+}
+
+use self::frame::bitmap::BitmapAllocator;
+
+impl From<MemoryController> for RuntimeMemoryController {
+    fn from(mem_ctrl: MemoryController) -> Self {
+        RuntimeMemoryController{
+            active_table : mem_ctrl.active_table,
+            frame_allocator: BitmapAllocator::from(mem_ctrl.frame_allocator),
+            stack_allocator: mem_ctrl.stack_allocator,
+        }
     }
 }
