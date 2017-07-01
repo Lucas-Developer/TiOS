@@ -1,4 +1,4 @@
-#![feature(alloc, lang_items, asm, unique, const_fn, naked_functions, core_intrinsics)]
+#![feature(alloc, lang_items, asm, unique, const_fn, naked_functions, core_intrinsics, abi_x86_interrupt)]
 #![no_std]
 
 extern crate rlibc;
@@ -10,6 +10,7 @@ extern crate lazy_static;
 extern crate x86_64;
 #[macro_use]
 extern crate bitflags;
+extern crate bit_field;
 
 /* Temporary heap allocator crate */
 extern crate hole_allocator;
@@ -140,10 +141,10 @@ pub extern fn rust_start(mb_info_addr: usize){
     util::enable_write_protect_bit();
 
     // Set up new expandable page table and remap the kernel
-    mem::init_mem(&boot_info);
+    let mut mem_ctrl = mem::init_mem(&boot_info);
 
     // Initialize trap handlers
-    trap::init_trap();
+    trap::init_trap(&mut mem_ctrl);
 
     // Initialize all drivers
     dev::init_io();

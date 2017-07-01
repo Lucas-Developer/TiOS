@@ -30,7 +30,7 @@ Open two terminals and change directory to the TiOS repository.
 
 One one terminal, run ```$ make run``` and wait for the GRUB boot menu.
 
-After the boot menu appears in ```qemu```, run ```$ make debug``` on the other terminal.
+After the boot menu appears in ```qemu```, run ```$ make gdb``` on the other terminal.
 
 The second terminal will start ```gdb``` and open a connection to ```qemu```.
 

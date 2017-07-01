@@ -20,6 +20,16 @@ pub struct Page {
     number : usize,
 }
 
+use core::ops::Add;
+
+impl Add<usize> for Page {
+    type Output = Page;
+
+    fn add(self, rhs: usize) -> Page {
+        Page { number: self.number + rhs }
+    }
+}
+
 impl Page{
     pub fn containing_address(virtual_address: VirtualAddress) -> Page {
         assert!(virtual_address <0x0000_8000_0000_0000 || 
@@ -28,7 +38,7 @@ impl Page{
         Page{ number: virtual_address / PAGE_SIZE }
     }
 
-    fn start_address(&self) -> usize {
+    pub fn start_address(&self) -> usize {
         self.number * PAGE_SIZE
     }
 
@@ -56,7 +66,7 @@ impl Page{
     }
 }
 
-
+#[derive(Debug, Clone)]
 pub struct PageIter {
     start: Page,
     end: Page,

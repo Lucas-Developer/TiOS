@@ -13,7 +13,7 @@ use core::ops::DerefMut;
 
 static MEM_INITED : Mutex<bool> = Mutex::new(false);
 
-pub fn init_mem(boot_info: &multiboot2::BootInformation){
+pub fn init_mem(boot_info: &multiboot2::BootInformation) -> MemoryController{
 
     // Check if init_mem has been called multiple times
     {
@@ -76,5 +76,38 @@ pub fn init_mem(boot_info: &multiboot2::BootInformation){
     for page in Page::range_inclusive(heap_start_page, heap_end_page) {
         active_table.map(page, page::WRITABLE, &mut frame_allocator);
     }
+
+    let stack_allocator = {
+        let stack_alloc_start = heap_end_page + 1;
+        let stack_alloc_end = stack_alloc_start + 100;
+        let stack_alloc_range = Page::range_inclusive(stack_alloc_start,
+                                                      stack_alloc_end);
+        stack_allocator::StackAllocator::new(stack_alloc_range)
+    };
+
+    MemoryController {
+        active_table: active_table,
+        frame_allocator: frame_allocator,
+        stack_allocator: stack_allocator,
+    }
 }
 
+pub use self::stack_allocator::Stack;
+
+
+// TODO: Modify allocator to allow for different allocators
+pub struct MemoryController {
+    active_table: page::ActivePageTable,
+    frame_allocator: frame::temp::AreaFrameAllocator,
+    stack_allocator: stack_allocator::StackAllocator,
+}
+
+impl MemoryController {
+    pub fn alloc_stack(&mut self, size_in_pages: usize) -> Option<Stack> {
+        let &mut MemoryController { ref mut active_table,
+                                    ref mut frame_allocator,
+                                    ref mut stack_allocator } = self;
+        stack_allocator.alloc_stack(active_table, frame_allocator,
+                                    size_in_pages)
+    }
+}

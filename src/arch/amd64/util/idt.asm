@@ -5,6 +5,7 @@
 
     global set_isr_gate
     global set_idt
+    global set_tss_offset
 
 ; Function to set one isr gate for one idt entry
 ; fn set_isr_gate(num : usize, addr: usize) , registers rdi and rsi
@@ -38,6 +39,20 @@ set_isr_gate:
 
     mov dword [eax], 0
 
+    pop rbx
+    ret
+
+
+; fn set_segment(num : usize, tss_offset: usize ) registers rdi and rsi
+set_tss_offset:
+    push rbx
+    mov rbx, rdi
+    shl rbx, 4 ; Get the byte offset to the entry
+    mov rax, idt64
+    add rax, rbx ; Get the absolute offset
+    add rax, 4   ; Get the offset of the tss offset
+    mov rcx, rsi
+    mov [rax], cx
     pop rbx
     ret
 
