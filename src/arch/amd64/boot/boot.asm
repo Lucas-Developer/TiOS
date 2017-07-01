@@ -165,13 +165,3 @@ gdt64:
 .pointer:
     dw $ - gdt64 - 1
     dq gdt64
-
-    section .data
-
-    global idt64
-    global idt64.pointer
-idt64:
-GEN_IDT
-.pointer:
-	dw $ - idt64 - 1
-	dq idt64
