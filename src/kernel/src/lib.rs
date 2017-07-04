@@ -7,6 +7,7 @@ extern crate spin;
 extern crate multiboot2;
 #[macro_use]
 extern crate lazy_static;
+#[macro_use]
 extern crate x86_64;
 #[macro_use]
 extern crate bitflags;
@@ -41,6 +42,8 @@ fn print_build_info(){
     {
         println!("Debug build. DO NOT USE FOR RELEASE.\n");
     }
+
+    println!("    There is no magic in operating systems.\n");
 }
 
 use spin::Mutex;

@@ -6,3 +6,4 @@
 src/kernel/target
 os.iso
 bin
+.vscode
