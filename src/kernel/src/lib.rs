@@ -25,6 +25,7 @@ pub mod mem;
 pub mod procs;
 pub mod trap;
 pub mod util;
+pub mod mem2;
 
 
 pub mod built_info {
