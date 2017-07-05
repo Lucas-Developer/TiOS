@@ -21,6 +21,20 @@ pub struct FrameIter {
     end: Frame,
 }
 
+impl Iterator for FrameIter {
+    type Item = Frame;
+    fn next(&mut self) -> Option<Frame> {
+        if self.start <= self.end {
+            let frame = self.start.clone();
+            self.start.number += 1;
+            Some(frame)
+        }
+        else{
+            None
+        }
+    }
+}
+
 // Frame related functions
 impl Frame {
 
@@ -30,10 +44,14 @@ impl Frame {
     }
 
     // Get a clone of the current frame
-    fn clone(&self) -> Frame {
+    pub fn clone(&self) -> Frame {
         Frame {
             number: self.number,
         }
+    }
+
+    pub fn range_inclusive(start: Frame, end:Frame) -> FrameIter {
+        FrameIter::new(start,end)
     }
 }
 
@@ -136,7 +154,8 @@ impl FrameAllocator for InitialFrameAllocator {
     }
 
     fn deallocate_frame(&mut self, frame: Frame){
-        unimplemented!() // DO NOT USE DURING INITIALIZATION
+        //unimplemented!() // DO NOT USE DURING INITIALIZATION
+        println!("    {:?} Frame not deallocated during initialization.",frame);
     }
 }
 
@@ -176,6 +195,3 @@ impl FrameAllocator for BuddyAllocator {
     }
 }
 
-pub fn range_inclusive(start: Frame, end:Frame) -> FrameIter {
-    FrameIter::new(start,end)
-}

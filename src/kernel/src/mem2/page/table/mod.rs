@@ -64,6 +64,15 @@ impl <L> PageTable<L> where L: TableLevel{
             entry.set_unused()
         }
     }
+
+    pub fn is_empty(&self) -> bool {
+        for entry in self.entries.iter() {
+            if !entry.is_unused() {
+                return false;
+            }
+        }
+        true
+    }
 }
 
 use super::super::frame::FrameAllocator;

@@ -145,16 +145,16 @@ pub extern fn rust_start(mb_info_addr: usize){
     util::enable_write_protect_bit();
 
     // Set up new expandable page table and remap the kernel
-    let mut mem_ctrl = mem::init_mem(&boot_info);
+    let mut mem_ctrl = mem2::init_mem(&boot_info);
 
     // Initialize trap handlers
-    trap::init_trap(&mut mem_ctrl);
+    //trap::init_trap(&mut mem_ctrl);
 
     // Initialize all drivers
-    dev::init_io();
+    //dev::init_io();
 
     // Initialize file system
-    fs::init_fs();
+    //fs::init_fs();
 
     sys_halt(0);
 }
