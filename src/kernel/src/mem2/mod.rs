@@ -43,6 +43,10 @@ pub struct MemoryManager {
 
 }
 
+impl MemoryManager {
+    // TODO
+}
+
 /// Function to initialize a memory manager
 pub fn init_mem(boot_info : &BootInformation) -> MemoryManager {
     {

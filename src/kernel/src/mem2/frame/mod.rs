@@ -12,7 +12,7 @@ mod coremap;
 // Public struct for Frames
 #[derive(Debug, Eq, PartialEq, Ord, PartialOrd)]
 pub struct Frame {
-    number: usize,
+    pub number: usize,
 }
 
 // Iterators for frames
