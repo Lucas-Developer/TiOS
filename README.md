@@ -93,8 +93,7 @@ Currently under work to switch use kernel heap.
 
 Philipp Oppermann's ```blog-os``` on system bootup, memory management initialization and exception frame handling. Link: https://os.phil-opp.com/
 
-
-
+OSDev.org for various articles on OS development. Link: http://wiki.osdev.org
 
 
 -----------------------------------------------------------------------
