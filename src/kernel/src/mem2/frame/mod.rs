@@ -81,6 +81,7 @@ pub trait FrameAllocator {
     fn deallocate_frame(&mut self, frame: Frame);
 }
 
+#[derive(Debug)]
 pub struct InitialFrameAllocator {
     areas: MemoryAreaIter,
     current_area: Option<&'static MemoryArea>,
@@ -89,13 +90,14 @@ pub struct InitialFrameAllocator {
     kernel_end: Frame,
     multiboot_start: Frame,
     multiboot_end: Frame,
+    freed_frames: [Option<usize>; 8],
 }
 
 impl InitialFrameAllocator {
     pub fn new(kernel_start:usize, kernel_end: usize,
                 multiboot_start: usize, multiboot_end: usize,
                 memory_areas: MemoryAreaIter) -> InitialFrameAllocator {
-        
+
         let mut allocator = InitialFrameAllocator {
             areas: memory_areas,
             current_area: None,
@@ -104,6 +106,7 @@ impl InitialFrameAllocator {
             kernel_end: Frame::from(kernel_end as PhysicalAddress),
             multiboot_start: Frame::from(multiboot_start as PhysicalAddress),
             multiboot_end: Frame::from(multiboot_end as PhysicalAddress),
+            freed_frames: [None;8],
         };
         allocator.select_next_area();
         allocator
@@ -154,8 +157,13 @@ impl FrameAllocator for InitialFrameAllocator {
     }
 
     fn deallocate_frame(&mut self, frame: Frame){
-        //unimplemented!() // DO NOT USE DURING INITIALIZATION
-        println!("    {:?} Frame not deallocated during initialization.",frame);
+        for pos in self.freed_frames.iter_mut(){
+            if pos.is_none() {
+                *pos = Some(frame.number);
+                return;
+            }
+        }
+        panic!("Too many frames to free during initialization!");
     }
 }
 
@@ -167,16 +175,15 @@ pub struct BuddyAllocator {
     // 8x frame level
 }
 
-bitflags! {
-    flags CoreMapEntryFlags: u64 {
-        const IN_USE = 1 << 0,
-        // TODO
-    }
-}
-
 // Convert Initial Allocator to Core map allocator
-impl From<InitialFrameAllocator> for BuddyAllocator {
-    fn from(init_frame_alloc: InitialFrameAllocator) -> BuddyAllocator {
+impl BuddyAllocator {
+    fn from(init_frame_alloc: InitialFrameAllocator,
+            active_table: &mut ActivePageTable,
+            ) -> BuddyAllocator {
+        //let coremap = unsafe{coremap::CoreMap::new()};
+
+        println!("Initial frame allocator: {:?}",init_frame_alloc);
+
         unimplemented!()
     }
 }

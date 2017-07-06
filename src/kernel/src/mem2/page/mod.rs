@@ -303,6 +303,10 @@ impl TemporaryPage {
     pub fn map_table_frame(&mut self, frame: Frame, active_table: &mut ActivePageTable) -> &mut PageTable<Level1> {
         unsafe{ &mut *(self.map(frame, active_table) as *mut PageTable<Level1>)}
     }
+
+    pub fn free<A>(&mut self, allocator: &mut A) where A: FrameAllocator{
+        self.allocator.free_frames(allocator);
+    }
 }
 
 #[derive(Debug)]
@@ -313,6 +317,15 @@ impl TinyAllocator{
         let mut alloc = || allocator.allocate_frame();
         let frames = [alloc(), alloc(), alloc()];
         TinyAllocator(frames)
+    }
+
+    fn free_frames<A>(&mut self, allocator: &mut A) where A: FrameAllocator {
+        for frame in &mut self.0 {
+            if frame.is_some() {
+                let a = frame.take().unwrap();
+                allocator.deallocate_frame(a);
+            }
+        }
     }
 }
 
@@ -392,6 +405,7 @@ pub fn remap_kernel<FA>(boot_info: &multiboot2::BootInformation,
         old_table.p4_frame.start_address() as VirtualAddress
     );
     active_table.unmap(old_p4_page, allocator);
+    temporary_page.free(allocator);
 
     active_table
 }
