@@ -13,16 +13,19 @@ SECTIONS {
 
     .bootstrap : {
         *(.bootstrap)
+        . = ALIGN(4K);
     }
 
     .bss.bootstrap : 
     {
         *(.bss.bootstrap)
+        . = ALIGN(4K);
     }
 
     .rodata.bootstrap :
     {
         *(.rodata.bootstrap)
+        . = ALIGN(4K);
     }
 
     . += KERNEL_VMA;
