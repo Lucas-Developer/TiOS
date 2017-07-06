@@ -48,30 +48,14 @@ SECTIONS {
         . = ALIGN(4K);
     }
 
-    .bss : {
+    .bss : AT(ADDR(.bss) - KERNEL_VMA)
+    {
         *(EXCLUDE_FILE(*src/arch/boot.o) .bss .bss.*)
         . = ALIGN(4K);
     }
 
-    .got :
+    /DISCARD/ :
     {
-        *(.got)
-        . = ALIGN(4K);
-    }
-
-    .got.plt :
-    {
-        *(.got.plt)
-        . = ALIGN(4K);
-    }
-
-    .data.rel.ro : ALIGN(4K) {
-        *(.data.rel.ro.local*) *(.data.rel.ro .data.rel.ro.*)
-        . = ALIGN(4K);
-    }
-
-    .gcc_except_table : ALIGN(4K) {
-        *(.gcc_except_table)
-        . = ALIGN(4K);
+        *(.comment)
     }
 }

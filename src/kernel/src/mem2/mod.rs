@@ -23,6 +23,7 @@ static MEM_INITED : Mutex<bool> = Mutex::new(false);
 
 pub const PAGE_SIZE: usize = 4096; // 4k pages
 pub const ENTRY_COUNT: usize = 512; // 512 entries / page table
+pub const KERNEL_VMA: usize = 0xffff8000_00000000; // Canonical higher half of kernel
 
 // Type definitions
 

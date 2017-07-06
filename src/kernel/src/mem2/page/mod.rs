@@ -160,6 +160,8 @@ impl InnerPageTable{
     }
 
     pub fn map_to<A> (&mut self, page:Page, frame:Frame, flags: EntryFlags, allocator: &mut A) where A: FrameAllocator {
+
+        println!("Page starting address: {:x}", page.start_address());
         let mut p3 = self.p4_mut().next_table_create(page.p4_index(), allocator);
         let mut p2 = p3.next_table_create(page.p3_index(), allocator);
         let mut p1 = p2.next_table_create(page.p2_index(), allocator);
@@ -177,6 +179,23 @@ impl InnerPageTable{
     pub fn identity_map<A> (&mut self, frame: Frame, flags: EntryFlags, 
                             allocator: &mut A) where A: FrameAllocator {
         let page = Page::from(frame.start_address() as VirtualAddress); // PA = VA
+        self.map_to(page,frame,flags,allocator);
+    }
+
+    pub fn higher_kernel_map<A> (&mut self, frame: Frame, flags: EntryFlags, 
+                                 allocator: &mut A) where A: FrameAllocator {
+        
+        let page = {
+            let frame_start_address = frame.start_address();
+            if frame_start_address >= KERNEL_VMA {
+                println!("VMA address");
+                Page::from(frame_start_address as VirtualAddress)
+            }
+            else{
+                println!("PHY address");
+                Page::from((frame_start_address + KERNEL_VMA) as VirtualAddress)
+            }
+        };
         self.map_to(page,frame,flags,allocator);
     }
 
@@ -387,16 +406,16 @@ pub fn remap_kernel<FA>(boot_info: &multiboot2::BootInformation,
             let start_frame = Frame::from(section.start_address() as PhysicalAddress);
             let end_frame = Frame::from((section.end_address() - 1) as PhysicalAddress);
             for frame in Frame::range_inclusive(start_frame, end_frame) {
-                innerpt.identity_map(frame, flags, allocator);
+                innerpt.higher_kernel_map(frame, flags, allocator);
             }
         }
         let vga_buffer_frame = Frame::from(0xb8000 as PhysicalAddress); 
-        innerpt.identity_map(vga_buffer_frame, WRITABLE, allocator);
+        innerpt.higher_kernel_map(vga_buffer_frame, WRITABLE, allocator);
 
         let multiboot_start = Frame::from(boot_info.start_address() as PhysicalAddress);
         let multiboot_end = Frame::from((boot_info.end_address() - 1) as PhysicalAddress);
         for frame in Frame::range_inclusive(multiboot_start, multiboot_end) {
-            innerpt.identity_map(frame, PRESENT, allocator);
+            innerpt.higher_kernel_map(frame, PRESENT, allocator);
         }
     });
 
@@ -406,6 +425,8 @@ pub fn remap_kernel<FA>(boot_info: &multiboot2::BootInformation,
     );
     active_table.unmap(old_p4_page, allocator);
     temporary_page.free(allocator);
+
+    println!("Finished kernel remapping!");
 
     active_table
 }

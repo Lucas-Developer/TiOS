@@ -62,7 +62,7 @@ impl Entry {
         }
     }
     pub fn set(&mut self, frame: Frame, flags: EntryFlags) {
-        assert_eq!(frame.start_address() & 0xfff00000_00000fff, 0, "Invalid frame starting address!");
+        assert_eq!(frame.start_address() & 0xfff00000_00000fff, 0, "Invalid frame starting address {:x}!", frame.start_address());
         self.0 = frame.start_address() as u64 | flags.bits();
     }
 }
