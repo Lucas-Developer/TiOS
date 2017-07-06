@@ -15,7 +15,7 @@ dq 0x0
     bits 32
     
     global start
-    extern long_start
+    extern bootstrap_long
 start:
     mov esp, stack_top
     mov edi, ebx
@@ -29,7 +29,7 @@ start:
     mov dword [0xb8000], 0x2f4b2f4f
 
 
-    jmp gdt64.code:long_start
+    jmp gdt64.code:bootstrap_long
 
 ; Utility functions for activating provisional paging
 
@@ -60,7 +60,8 @@ enable_paging:
 set_page_tables:
     mov eax, p3_table
     or eax, 0b11 ; present + writable
-    mov [p4_table], eax
+    mov [p4_table], eax ; Identity mapping, to be removed.
+    mov [p4_table + 256 * 8], eax ; Higher half mapping
 
     mov eax, p2_table
     or eax, 0b11 ; present + writable

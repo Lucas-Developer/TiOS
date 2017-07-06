@@ -91,7 +91,7 @@ pub fn init_mem(boot_info : &BootInformation) -> MemoryManager {
     );
 
     let active_table = self::page::remap_kernel(boot_info, &mut temp_frame_alloc);
-    let frame_alloc = BuddyAllocator::from(temp_frame_alloc, &mut active_table);
+    //let frame_alloc = BuddyAllocator::from(temp_frame_alloc, &mut active_table);
 
     // TODO: generate a memory manager and return it
     

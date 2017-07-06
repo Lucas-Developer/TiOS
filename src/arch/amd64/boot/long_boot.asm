@@ -5,11 +5,7 @@
     section .text
     bits 64
 
-    global long_start
-
-    ; From util/console.asm
-    extern clear_console
-    extern print_char
+    global bootstrap_long
 
     ; From Rust code
     extern rust_start
@@ -23,7 +19,13 @@ long_start:
     mov fs, ax
     mov gs, ax
 
-    call clear_console
-    mov rax, 0x2f592f412f4b2f4f
-    mov qword [0xb8000], rax
-    jmp rust_start
+    mov rax, rust_start
+    jmp [rax]
+    cli
+    hlt
+
+    section .bootstrap64
+    bits 64
+bootstrap_long:
+    mov rax, long_start
+    jmp [rax]
