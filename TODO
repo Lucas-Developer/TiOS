@@ -1,5 +1,5 @@
-1. Move 64-bit code to higher half of memory
-2. Rewrite memory module for 64-bit and remap kernel to higher half
+1. Move 64-bit code to higher half of memory (Done)
+2. Rewrite memory module for 64-bit and remap kernel to higher half, unmap identity mapped area
 3. Relocate PIC to shift 32 entries on the IDT
 4. File systems (To Be Extended)
 5. Processes (To Be Extended)

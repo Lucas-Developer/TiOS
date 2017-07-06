@@ -136,6 +136,8 @@ fn sys_halt(code: usize) -> ! {
 #[no_mangle]
 pub extern fn rust_start(mb_info_addr: usize){
     
+    println!("{:x}", rust_start as usize);
+
     let boot_info = unsafe{ multiboot2::load(mb_info_addr) };
 
     print_build_info();
