@@ -161,7 +161,9 @@ impl InnerPageTable{
 
     pub fn map_to<A> (&mut self, page:Page, frame:Frame, flags: EntryFlags, allocator: &mut A) where A: FrameAllocator {
 
-        println!("Page starting address: {:x}", page.start_address());
+        //println!("Page starting address: {:x}", page.start_address());
+        //println!("Page : {:#x}", page.start_address());
+        //println!("Page indices: {:#x} {:#x} {:#x} {:#x}", page.p4_index(), page.p3_index(), page.p2_index(), page.p1_index());
         let mut p3 = self.p4_mut().next_table_create(page.p4_index(), allocator);
         let mut p2 = p3.next_table_create(page.p3_index(), allocator);
         let mut p1 = p2.next_table_create(page.p2_index(), allocator);
@@ -184,22 +186,22 @@ impl InnerPageTable{
 
     pub fn higher_kernel_map<A> (&mut self, frame: Frame, flags: EntryFlags, 
                                  allocator: &mut A) where A: FrameAllocator {
-        
-        let page = {
-            let frame_start_address = frame.start_address();
-            if frame_start_address >= KERNEL_VMA {
-                println!("VMA address");
-                Page::from(frame_start_address as VirtualAddress)
-            }
-            else{
-                println!("PHY address");
-                Page::from((frame_start_address + KERNEL_VMA) as VirtualAddress)
-            }
+
+        let page = Page {
+            number: (frame.start_address() + KERNEL_VMA) / PAGE_SIZE,
         };
+
+        //println!("{:#x}", frame.start_address() + KERNEL_VMA);
+
+        println!("Mapping {:?} to {:?}", page, frame);
         self.map_to(page,frame,flags,allocator);
     }
 
     pub fn unmap<A> (&mut self, page: Page, allocator: &mut A) where A: FrameAllocator {
+
+        println!("page: {:#x}", page.start_address());
+        panic!();
+
         assert!(self.translate(page.start_address()).is_some());
         let p1 = self.p4_mut()
                      .next_table_mut(page.p4_index())
@@ -271,12 +273,13 @@ impl ActivePageTable {
 
         unsafe{
             control_regs::cr3_write(x86_64::PhysicalAddress(
-                new_table.p4_frame.start_address() as u64));
+                (new_table.p4_frame.start_address()) as u64));
         }
         old_table
     }
 }
 
+#[derive(Debug)]
 pub struct InactivePageTable {
     p4_frame: Frame,
 }
@@ -396,19 +399,49 @@ pub fn remap_kernel<FA>(boot_info: &multiboot2::BootInformation,
             if !section.is_allocated() {
                 continue;
             }
-            assert!(section.start_address() % PAGE_SIZE == 0,
+
+            let section_start_vma = section.start_address() as VirtualAddress;
+            let section_end_vma = (section.end_address() - 1) as VirtualAddress;
+
+            let section_start_pma = {
+                if section_start_vma > KERNEL_VMA {
+                    (section_start_vma - KERNEL_VMA) as PhysicalAddress
+                }
+                else{
+                    section_start_vma as PhysicalAddress
+                }
+            };
+            let section_end_pma = {
+                if section_end_vma > KERNEL_VMA {
+                    (section_end_vma - KERNEL_VMA) as PhysicalAddress
+                }
+                else{
+                    section_end_vma as PhysicalAddress
+                }
+            };
+
+            //println!("Section range: {:#x} - {:#x}", section_start_pma, section_end_pma);
+
+            assert!(section_start_pma % PAGE_SIZE == 0,
                 "sections need to be page aligned");
 
-            println!("    mapping section at addr: {:#x}, size: {:#x}",
-                section.addr, section.size);
+            //println!("    mapping section at addr: {:#x}, size: {:#x}",
+            //    section_start_pma, section.size);
 
             let flags = EntryFlags::from_elf(section);
-            let start_frame = Frame::from(section.start_address() as PhysicalAddress);
-            let end_frame = Frame::from((section.end_address() - 1) as PhysicalAddress);
+            let start_frame = Frame::from(section_start_pma);
+            let end_frame = Frame::from(section_end_pma);
+
+            //println!("Section frames: {:?} {:?}", start_frame, end_frame);
+
+            
             for frame in Frame::range_inclusive(start_frame, end_frame) {
+                //println!("Frame to map: {:?}", frame);
                 innerpt.higher_kernel_map(frame, flags, allocator);
             }
+            
         }
+
         let vga_buffer_frame = Frame::from(0xb8000 as PhysicalAddress); 
         innerpt.higher_kernel_map(vga_buffer_frame, WRITABLE, allocator);
 
@@ -418,8 +451,9 @@ pub fn remap_kernel<FA>(boot_info: &multiboot2::BootInformation,
             innerpt.higher_kernel_map(frame, PRESENT, allocator);
         }
     });
-
+    
     let old_table = active_table.switch(new_table);
+    
     let old_p4_page = Page::from(
         old_table.p4_frame.start_address() as VirtualAddress
     );

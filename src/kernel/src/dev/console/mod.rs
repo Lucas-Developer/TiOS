@@ -148,7 +148,7 @@ pub static CONSOLE: Mutex<Console> = Mutex::new(
         color_code: ColorCode(
             (ConsoleColor::Black as u8) << 4 | (ConsoleColor::LightGray as u8)
         ),
-        buffer: unsafe{ Unique::new(0xb8000 as *mut _) },
+        buffer: unsafe{ Unique::new(0xffff8000000b8000 as *mut _) },
     }
 );
 
