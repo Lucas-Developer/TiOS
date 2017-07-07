@@ -16,6 +16,7 @@ pub struct Frame {
 }
 
 // Iterators for frames
+#[derive(Debug)]
 pub struct FrameIter {
     start: Frame,
     end: Frame,
@@ -71,6 +72,17 @@ impl FrameIter {
             start: start,
             end: end,
         }
+    }
+
+    pub fn clone(&self) -> FrameIter{
+        FrameIter{
+            start: self.start.clone(),
+            end: self.end.clone(),
+        }
+    }
+
+    pub fn range(&self) -> usize {
+        self.end.number - self.start.number + 1
     }
 }
 
@@ -176,13 +188,24 @@ pub struct BuddyAllocator {
 }
 
 // Convert Initial Allocator to Core map allocator
-impl BuddyAllocator {
-    fn from(init_frame_alloc: InitialFrameAllocator,
-            active_table: &mut ActivePageTable,
-            ) -> BuddyAllocator {
-        //let coremap = unsafe{coremap::CoreMap::new()};
 
-        println!("Initial frame allocator: {:?}",init_frame_alloc);
+use multiboot2;
+
+impl BuddyAllocator {
+    pub fn new(init_frame_alloc: InitialFrameAllocator,
+            active_table: &mut ActivePageTable,
+            boot_info: &multiboot2::BootInformation,
+            ) -> BuddyAllocator {
+        use self::coremap::*;
+        let mut init_frame_alloc = init_frame_alloc;
+        let elf_sections_tag = boot_info
+                    .elf_sections_tag()
+                    .expect("Kernel ELF sections required.");
+        let elf_sections = elf_sections_tag.sections();
+        let mem_sections_tag = boot_info.memory_map_tag().expect("Memory map required.");
+        let mem_sections = mem_sections_tag.memory_areas();
+
+        let cm = unsafe{coremap::CoreMap::new(mem_sections,active_table,&mut init_frame_alloc)};
 
         unimplemented!()
     }

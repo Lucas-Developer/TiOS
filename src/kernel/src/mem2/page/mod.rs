@@ -193,7 +193,7 @@ impl InnerPageTable{
 
         //println!("{:#x}", frame.start_address() + KERNEL_VMA);
 
-        println!("Mapping {:?} to {:?}", page, frame);
+        //println!("Mapping {:?} to {:?}", page, frame);
         self.map_to(page,frame,flags,allocator);
     }
 
@@ -401,7 +401,7 @@ pub fn remap_kernel<FA>(boot_info: &multiboot2::BootInformation,
             let section_end_vma = (section.end_address() - 1) as VirtualAddress;
 
             let section_start_pma = {
-                if section_start_vma > KERNEL_VMA {
+                if section_start_vma >= KERNEL_VMA {
                     (section_start_vma - KERNEL_VMA) as PhysicalAddress
                 }
                 else{
@@ -409,7 +409,7 @@ pub fn remap_kernel<FA>(boot_info: &multiboot2::BootInformation,
                 }
             };
             let section_end_pma = {
-                if section_end_vma > KERNEL_VMA {
+                if section_end_vma >= KERNEL_VMA {
                     (section_end_vma - KERNEL_VMA) as PhysicalAddress
                 }
                 else{
@@ -442,8 +442,24 @@ pub fn remap_kernel<FA>(boot_info: &multiboot2::BootInformation,
         let vga_buffer_frame = Frame::from(0xb8000 as PhysicalAddress); 
         innerpt.higher_kernel_map(vga_buffer_frame, WRITABLE, allocator);
 
-        let multiboot_start = Frame::from(boot_info.start_address() as PhysicalAddress);
-        let multiboot_end = Frame::from((boot_info.end_address() - 1) as PhysicalAddress);
+        let multiboot_start = Frame::from({
+            let mb_vma = boot_info.start_address() as VirtualAddress;
+            if mb_vma >= KERNEL_VMA {
+                (mb_vma - KERNEL_VMA) as PhysicalAddress
+            }
+            else {
+                mb_vma as PhysicalAddress
+            }
+        });
+        let multiboot_end = Frame::from({
+            let mb_vma = (boot_info.end_address() - 1) as VirtualAddress;
+            if mb_vma >= KERNEL_VMA {
+                (mb_vma - KERNEL_VMA) as PhysicalAddress
+            }
+            else{
+                mb_vma as PhysicalAddress
+            }
+        });
         for frame in Frame::range_inclusive(multiboot_start, multiboot_end) {
             innerpt.higher_kernel_map(frame, PRESENT, allocator);
         }

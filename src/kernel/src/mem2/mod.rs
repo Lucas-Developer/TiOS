@@ -91,9 +91,19 @@ pub fn init_mem(boot_info : &BootInformation) -> MemoryManager {
         boot_info.memory_map_tag().unwrap().memory_areas(),
     );
 
-    let active_table = self::page::remap_kernel(boot_info, &mut temp_frame_alloc);
-    //let frame_alloc = BuddyAllocator::from(temp_frame_alloc, &mut active_table);
+    let mut active_table = self::page::remap_kernel(boot_info, &mut temp_frame_alloc);
+    
+    super::log_status("Kernel remapping to higher half", Ok(()));
+    
+    let frame_alloc = BuddyAllocator::new(temp_frame_alloc, &mut active_table, boot_info);
 
+    super::log_status("Buddy frame allocator initialization", Ok(()));
+
+
+
+
+
+    
     // TODO: generate a memory manager and return it
     
 

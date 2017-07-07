@@ -136,19 +136,19 @@ fn sys_halt(code: usize) -> ! {
 #[no_mangle]
 pub extern fn rust_start(mb_info_addr: usize){
 
-    let mut boot_info = unsafe{ multiboot2::load(mb_info_addr) };
+    let mut boot_info = unsafe{ multiboot2::load(mb_info_addr + mem2::KERNEL_VMA) };
 
     print_build_info();
     print_boot_info(&boot_info);
 
     util::enable_nxe_bit();
     util::enable_write_protect_bit();
-    //unsafe{asm!("hlt")};
+
     // Set up new expandable page table and remap the kernel
     let mut mem_ctrl = mem2::init_mem(&boot_info);
 
     // Have to reload the boot info
-    boot_info = unsafe{ multiboot2::load(mb_info_addr + mem2::KERNEL_VMA) };
+    
 
     // Initialize trap handlers
     //trap::init_trap(&mut mem_ctrl);
