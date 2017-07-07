@@ -199,9 +199,6 @@ impl InnerPageTable{
 
     pub fn unmap<A> (&mut self, page: Page, allocator: &mut A) where A: FrameAllocator {
 
-        println!("page: {:#x}", page.start_address());
-        panic!();
-
         assert!(self.translate(page.start_address()).is_some());
         let p1 = self.p4_mut()
                      .next_table_mut(page.p4_index())
@@ -455,7 +452,7 @@ pub fn remap_kernel<FA>(boot_info: &multiboot2::BootInformation,
     let old_table = active_table.switch(new_table);
     
     let old_p4_page = Page::from(
-        old_table.p4_frame.start_address() as VirtualAddress
+        (old_table.p4_frame.start_address() + KERNEL_VMA) as VirtualAddress
     );
     active_table.unmap(old_p4_page, allocator);
     temporary_page.free(allocator);
